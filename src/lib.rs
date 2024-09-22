@@ -127,10 +127,10 @@ fn half_steps_from_scale(scale: String) -> Vec<usize> {
     half_steps
 }
 
-pub fn major_scale(root: String, accidental: Accidental) -> Vec<String> {
+fn get_note_from_scale(scale: String, root: String, accidental: Accidental) -> Vec<String> {
     let root_note = Note::from_str(root.as_str());
 
-    let half_steps = half_steps_from_scale(String::from("major"));
+    let half_steps = half_steps_from_scale(scale);
     let mut notes: Vec<String> = Vec::new();
 
     for step in half_steps.iter() {
@@ -143,18 +143,10 @@ pub fn major_scale(root: String, accidental: Accidental) -> Vec<String> {
     notes
 }
 
+pub fn major_scale(root: String, accidental: Accidental) -> Vec<String> {
+    get_note_from_scale(String::from("major"), root, accidental)
+}
+
 pub fn natural_minor_scale(root: String, accidental: Accidental) -> Vec<String> {
-    let root_note = Note::from_str(root.as_str());
-
-    let half_steps = half_steps_from_scale(String::from("minor"));
-    let mut notes: Vec<String> = Vec::new();
-
-    for step in half_steps.iter() {
-        let distance = root_note.index() + step;
-        let note = Note::from_distance(distance, accidental.clone());
-
-        notes.push(note.to_string());
-    }
-
-    notes
+    get_note_from_scale(String::from("minor"), root, accidental)
 }
