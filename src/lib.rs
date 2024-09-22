@@ -49,8 +49,9 @@ impl Note {
         }
     }
 
-    pub fn from_distance(distance: usize, accidental: Accidental) -> Note {
-        let index = normalize_distance(distance);
+    pub fn from_distance(root: &Note, distance: usize, accidental: Accidental) -> Note {
+        let dt = root.index() + distance;
+        let index = normalize_distance(dt);
         let str = match accidental {
             Accidental::Natural | Accidental::Sharp => String::from(SHARP_NOTES[index]),
             Accidental::Flat => String::from(FLAT_NOTES[index]),
@@ -110,9 +111,9 @@ const NATURAL_MINOR_STRUCTURE: [Step; 7] = [
     Step::Whole,
 ];
 
-fn half_steps_from_scale(scale: String) -> Vec<usize> {
+fn half_steps_from_scale(scale: &str) -> Vec<usize> {
     let mut half_steps: Vec<usize> = Vec::new();
-    let scale_ref = match scale.as_str() {
+    let scale_ref = match scale {
         "major" => MAJOR_STRUCTURE,
         "minor" => NATURAL_MINOR_STRUCTURE,
         _ => MAJOR_STRUCTURE,
@@ -127,15 +128,14 @@ fn half_steps_from_scale(scale: String) -> Vec<usize> {
     half_steps
 }
 
-fn get_note_from_scale(scale: String, root: String, accidental: Accidental) -> Vec<String> {
+fn get_note_from_scale(scale: &str, root: String, accidental: Accidental) -> Vec<String> {
     let root_note = Note::from_str(root.as_str());
 
     let half_steps = half_steps_from_scale(scale);
     let mut notes: Vec<String> = Vec::new();
 
     for step in half_steps.iter() {
-        let distance = root_note.index() + step;
-        let note = Note::from_distance(distance, accidental.clone());
+        let note = Note::from_distance(&root_note, step.clone(), accidental.clone());
 
         notes.push(note.to_string());
     }
@@ -144,9 +144,9 @@ fn get_note_from_scale(scale: String, root: String, accidental: Accidental) -> V
 }
 
 pub fn major_scale(root: String, accidental: Accidental) -> Vec<String> {
-    get_note_from_scale(String::from("major"), root, accidental)
+    get_note_from_scale("major", root, accidental)
 }
 
 pub fn natural_minor_scale(root: String, accidental: Accidental) -> Vec<String> {
-    get_note_from_scale(String::from("minor"), root, accidental)
+    get_note_from_scale("minor", root, accidental)
 }
