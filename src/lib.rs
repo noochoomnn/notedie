@@ -5,7 +5,7 @@ fn normalize_distance(mut distance: usize) -> usize {
     distance
 }
 
-pub enum Step {
+enum Step {
     None,
     Whole,
     Half,
@@ -49,7 +49,7 @@ impl Note {
         }
     }
 
-    pub fn from_distance(root: &Note, distance: usize, accidental: Accidental) -> Note {
+    pub fn from_distance(root: &Note, distance: &usize, accidental: &Accidental) -> Note {
         let dt = root.index() + distance;
         let index = normalize_distance(dt);
         let str = match accidental {
@@ -111,6 +111,8 @@ const NATURAL_MINOR_STRUCTURE: [Step; 7] = [
     Step::Whole,
 ];
 
+const MAJOR7_STRUCTURE: [usize; 4] = [1, 3, 5, 7];
+
 fn half_steps_from_scale(scale: &str) -> Vec<usize> {
     let mut half_steps: Vec<usize> = Vec::new();
     let scale_ref = match scale {
@@ -128,14 +130,14 @@ fn half_steps_from_scale(scale: &str) -> Vec<usize> {
     half_steps
 }
 
-fn get_note_from_scale(scale: &str, root: String, accidental: Accidental) -> Vec<String> {
-    let root_note = Note::from_str(root.as_str());
+fn get_note_from_scale(scale: &str, root: &str, accidental: Accidental) -> Vec<String> {
+    let root_note = Note::from_str(root);
 
     let half_steps = half_steps_from_scale(scale);
     let mut notes: Vec<String> = Vec::new();
 
     for step in half_steps.iter() {
-        let note = Note::from_distance(&root_note, step.clone(), accidental.clone());
+        let note = Note::from_distance(&root_note, step, &accidental);
 
         notes.push(note.to_string());
     }
@@ -143,10 +145,30 @@ fn get_note_from_scale(scale: &str, root: String, accidental: Accidental) -> Vec
     notes
 }
 
-pub fn major_scale(root: String, accidental: Accidental) -> Vec<String> {
+fn get_note_from_chord(chord_type: &str, root: &str) -> Vec<String> {
+    let root_note = Note::from_str(root);
+
+    let half_steps = half_steps_from_scale("major");
+    let mut notes: Vec<String> = Vec::new();
+
+    for step in MAJOR7_STRUCTURE.iter() {
+        let distance = half_steps[step - 1];
+        let note = Note::from_distance(&root_note, &distance, &Accidental::Natural);
+
+        notes.push(note.to_string());
+    }
+
+    notes
+}
+
+pub fn major_scale(root: &str, accidental: Accidental) -> Vec<String> {
     get_note_from_scale("major", root, accidental)
 }
 
-pub fn natural_minor_scale(root: String, accidental: Accidental) -> Vec<String> {
+pub fn natural_minor_scale(root: &str, accidental: Accidental) -> Vec<String> {
     get_note_from_scale("minor", root, accidental)
+}
+
+pub fn major7(root: &str) -> Vec<String> {
+    get_note_from_chord("major7", root)
 }
